@@ -47,7 +47,7 @@ public class Main {
                 System.out.println(args[0] + "命令未知或 " + args[1] + " 给定的dimens.xml文件不存在。将使用默认值 d:\\dimens.xml");
             }
             if (args[2].equalsIgnoreCase("-d")&&isFileExists(args[3])) {
-                defaultDimensPath = args[3];
+                resFolderPath = args[3];
             } else {
                 System.out.println(args[2] + "命令未知或 " +args[3] + " 给定的res文件夹不存在。将使用默认值 d:\\res");
             }
@@ -55,6 +55,8 @@ public class Main {
             System.out.println("\n******************\n使用默认值来转换计算: d:\\dimens.xml d:\\res \n" +
                     "******************\n");
         }
+        System.out.println("source: " + defaultDimensPath);
+        System.out.println("destination: " + resFolderPath);
         DimensionCalcManager.executeBatchTask(defaultDimensPath, resFolderPath);
     }
 

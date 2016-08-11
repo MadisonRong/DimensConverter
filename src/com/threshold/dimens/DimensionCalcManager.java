@@ -2,6 +2,8 @@ package com.threshold.dimens;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * ClassName:DimensionCalcManager 
@@ -22,29 +24,30 @@ public class DimensionCalcManager {
 	 *
 	 * @author 黄守江
 	 * @param standardDimensionFilePath 1136x640的标准dimension.xml文件路径
-	 * @param destinationResFolderPath 含有许多values的 res文件夹路径。
+	 * @param destinationResFolderPath 含有许多values的 res文件夹路径。子文件夹路径格式形如 values-mdpi-864x480
 	 * @since JDK 1.6
 	 */
 	public static void executeBatchTask(String standardDimensionFilePath, String destinationResFolderPath){
 		File file=new File(destinationResFolderPath);
-//		File file=new File("d:\\res\\");
 		FileFilter filter= pathname -> {
-            if (pathname.getName().contains("values")) {
-                return true;
-            }
-            System.out.println("Attention：res文件夹下含有非values开头的文件夹："+pathname);
+			Pattern pattern = Pattern.compile("values-(l|m|h|xh|xxh)dpi-\\d+?x\\d+");
+			System.out.println(pathname.getAbsolutePath());
+			Matcher matcher = pattern.matcher(pathname.getAbsolutePath());
+			if (matcher.find()) {
+				return true;
+			}
             return false;
         };
 		File[] listFiles = file.listFiles(filter);
 		for (File file2 : listFiles) {
 			String folderName=file2.getName();
-			System.out.println("Folder Name= "+folderName+"      Path= "+file2.getAbsolutePath());
+			System.out.println("Folder Name= "+folderName+", Path= "+file2.getAbsolutePath());
 		    String[] split = folderName.split("-");
 		    String dpiString=split[1];
 		    String[] resolutions = split[2].split("x");
 		    int height=Integer.valueOf(resolutions[0]);
 		    int width=Integer.valueOf(resolutions[1]);
-		    System.out.println("height= "+height+"      width= "+width);
+		    System.out.println("height= "+height+", width= "+width);
 		    new ChangeDimensionTask(standardDimensionFilePath, file2.getAbsolutePath(), height, width, dpiString).execute();
 		}
 		System.out.println("\n\n\n ============================All Done================================");
