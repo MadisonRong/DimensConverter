@@ -13,3 +13,9 @@ The dimens converter for android.
 3.use "-s -d". eg: " -s d:\\dimens.xml -d d:\\res "  -s: source dimens.xml path,-d the res folder path.
 
 4.use "-h": show help
+
+### Note  
+This project is forked from [wind0ws/DimensConverter](https://github.com/wind0ws/DimensConverter)  
+fix problem include:  
+1.build jar for users  
+2.make it work on converting dp, sp and dip  
