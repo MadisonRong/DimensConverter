@@ -30,7 +30,7 @@ public class DimensionCalcManager {
 	public static void executeBatchTask(String standardDimensionFilePath, String destinationResFolderPath){
 		File file=new File(destinationResFolderPath);
 		FileFilter filter= pathname -> {
-			Pattern pattern = Pattern.compile("values-(l|m|h|xh|xxh)dpi-\\d+?x\\d+");
+			Pattern pattern = Pattern.compile("values-(l|m|h|xh|xxh|xxxh)dpi-\\d+?x\\d+");
 			System.out.println(pathname.getAbsolutePath());
 			Matcher matcher = pattern.matcher(pathname.getAbsolutePath());
 			if (matcher.find()) {

@@ -9,6 +9,7 @@
 package com.threshold.dimens;
 
 import java.io.*;
+import java.math.BigDecimal;
 
 /**
  * ClassName:ChangeDimension 
@@ -127,7 +128,7 @@ public class ChangeDimensionTask {
             while ((oneLine = reader.readLine()) != null) {
                 // 显示行号
 //	                System.out.println("line " + line + ": " + oneLine);
-                stringBuilder.append(updateDimension(oneLine));
+                stringBuilder.append(updateDimension((String) oneLine));
                 stringBuilder.append("\n");
 //                line++;
             }
@@ -149,19 +150,23 @@ public class ChangeDimensionTask {
         if (oneLine.contains("Default screen margins")) {//说明是第一行备注 mdpi 160dpi 1136x640
             return "    <!-- " + firstLineStatement + " " + height + "x" + width + " -->";
         }
-        int dpDimension = oneLine.indexOf("dp</dimen>");
+        String newTempString = updateDimension(oneLine, "dp");
+        newTempString = updateDimension(newTempString, "dip");
+        newTempString = updateDimension(newTempString, "sp");
+        if (newTempString != null) return newTempString;
+        return oneLine;
+    }
+
+    private String updateDimension(String oneLine, String keyword) {
+        int dpDimension = oneLine.indexOf(keyword + "</dimen>");
         if (dpDimension > -1) {
             int begin = oneLine.indexOf("\">");
             int end = oneLine.indexOf("</");
             if (begin > 0 && end > 0 && end > begin) {
                 String dimensionString = oneLine.substring(begin + 2, end);
-                double dp = Double.valueOf(dimensionString.substring(0, dimensionString.indexOf("dp")));
-                double newDimen = dp * ratio;
-//				String newDimension=newDimen+"dp";
-//				oneLine.replaceAll(dimensionString, newDimension);
-                String newTempString = oneLine.replace(dimensionString, String.format("%.3f", newDimen) + "dp");
-//				System.out.println("new String="+newTempString);
-                return newTempString;
+                int dp = Integer.valueOf(dimensionString.substring(0, dimensionString.indexOf(keyword)));
+                BigDecimal newDimen = new BigDecimal(dp * ratio).setScale(0, BigDecimal.ROUND_HALF_UP);
+                return oneLine.replace(dimensionString, newDimen + keyword);
             }
         }
         return oneLine;
