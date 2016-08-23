@@ -10,12 +10,14 @@ The dimens converter for android.
 
 2.use "-i" to go to  edit mode,you can input dimens.xml path and res folder path manually.
 
-3.use "-s -d". eg: " -s d:\\dimens.xml -d d:\\res "  -s: source dimens.xml path,-d the res folder path.
+3.use "-w -s -d". eg: "-w 864 -s d:\\dimens.xml -d d:\\res " -w: design width -s: source dimens.xml path,-d the res folder path.you need to build some folder like values-mdpi-320x240 in res folder.
 
 4.use "-h": show help
 
 ### Note  
 This project is forked from [wind0ws/DimensConverter](https://github.com/wind0ws/DimensConverter)  
+The jar need JDK 1.8  
 fix problem include:  
 1.build jar for users  
 2.make it work on converting dp, sp and dip  
+3.offer one more parameter to specific design width
