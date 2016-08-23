@@ -16,9 +16,9 @@ import java.math.BigDecimal;
  * Function: TODO ADD FUNCTION. 
  * Reason:	 TODO ADD REASON. 
  * Date:     2015年9月21日 下午2:12:17 
- * @author 黄守江
+ * @author 黄守江, MadisonRong
  * @version
- * @since JDK 1.6
+ * @since JDK 1.8
  * @see
  */
 public class ChangeDimensionTask {
@@ -28,14 +28,15 @@ public class ChangeDimensionTask {
     private String destFileFolder;
     private String dpiString;
     private float ratio;
-    private int height, width;
+    private int height, width, designWidth;
     private String firstLineStatement = "";
 
-    public ChangeDimensionTask(String sourceFileName, String destFolder, int height, int width, String dpi) {
+    public ChangeDimensionTask(String sourceFileName, String destFolder, int designWidth, int height, int width, String dpi) {
         this.sourceFileName = sourceFileName;
         this.destFileFolder = destFolder;
         this.dpiString = dpi;
         stringBuilder = new StringBuilder();
+        this.designWidth = designWidth;
         this.height = height;
         this.width = width;
         calculatorRatio();
@@ -75,15 +76,13 @@ public class ChangeDimensionTask {
                 firstLineStatement = dpiString;
                 break;
         }
-        this.ratio = (float) width / 720.0f / coefficient;
+        this.ratio = (float) width / designWidth / coefficient;
         System.out.println("计算出的系数：" + ratio);
     }
 
 
     public void execute() {
         readFileByLines();
-//		System.out.println("____________________________________________");
-//		System.out.println(stringBuilder.toString());
         saveFile();
     }
 
@@ -98,11 +97,6 @@ public class ChangeDimensionTask {
                 }
             } else {
                 System.out.println(file.getAbsolutePath()+" already has a dimens.xml file.I will rewrite it.");
-//                if (file.delete() && file.createNewFile()) {
-//                    System.out.println(file.getAbsolutePath()+" already has a dimens.xml file, I delete it and recreate a new file successfully.");
-//                } else {
-//                    System.out.println("*** "+file.getAbsolutePath()+" already has a dimens.xml file,but FAILED on delete it or create new file !!!! ***");
-//                }
             }
             byte[] contentInBytes = stringBuilder.toString().getBytes();
             fop.write(contentInBytes);
@@ -165,7 +159,7 @@ public class ChangeDimensionTask {
             if (begin > 0 && end > 0 && end > begin) {
                 String dimensionString = oneLine.substring(begin + 2, end);
                 int dp = Integer.valueOf(dimensionString.substring(0, dimensionString.indexOf(keyword)));
-                BigDecimal newDimen = new BigDecimal(dp * ratio).setScale(0, BigDecimal.ROUND_HALF_UP);
+                BigDecimal newDimen = new BigDecimal(dp * ratio).setScale(2, BigDecimal.ROUND_HALF_UP);
                 return oneLine.replace(dimensionString, newDimen + keyword);
             }
         }
