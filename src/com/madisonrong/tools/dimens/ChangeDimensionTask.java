@@ -6,7 +6,7 @@
  * Copyright (c) 2015,QuanXiang All Rights Reserved.
  */
 
-package com.threshold.dimens;
+package com.madisonrong.tools.dimens;
 
 import java.io.*;
 import java.math.BigDecimal;
