@@ -12,14 +12,9 @@ import java.io.*;
 import java.math.BigDecimal;
 
 /**
- * ClassName:ChangeDimension 
- * Function: TODO ADD FUNCTION. 
- * Reason:	 TODO ADD REASON. 
+ * ClassName:ChangeDimension
  * Date:     2015年9月21日 下午2:12:17 
  * @author 黄守江, MadisonRong
- * @version
- * @since JDK 1.8
- * @see
  */
 public class ChangeDimensionTask {
 
@@ -28,15 +23,18 @@ public class ChangeDimensionTask {
     private String destFileFolder;
     private String dpiString;
     private float ratio;
-    private int height, width, designWidth;
+    private int height, width, designWidth, designDpi;
+    private float coefficient;
     private String firstLineStatement = "";
 
-    public ChangeDimensionTask(String sourceFileName, String destFolder, int designWidth, int height, int width, String dpi) {
+    public ChangeDimensionTask(String sourceFileName, String destFolder,
+                               int designWidth, int designDpi, int height, int width, String dpi) {
         this.sourceFileName = sourceFileName;
         this.destFileFolder = destFolder;
         this.dpiString = dpi;
         stringBuilder = new StringBuilder();
         this.designWidth = designWidth;
+        this.designDpi = designDpi;
         this.height = height;
         this.width = width;
         calculatorRatio();
@@ -44,7 +42,6 @@ public class ChangeDimensionTask {
 
 
     private void calculatorRatio() {
-        float coefficient;
         switch (dpiString) {
             case DpiName.LDPI:
                 coefficient = 0.75f;
@@ -72,11 +69,12 @@ public class ChangeDimensionTask {
                 break;
             default:
                 String dpiNumber = dpiString.substring(0, dpiString.indexOf("dpi"));
-                coefficient = Integer.valueOf(dpiNumber) / 160;
+                coefficient = Float.valueOf(dpiNumber) / 160;
                 firstLineStatement = dpiString;
                 break;
         }
-        this.ratio = (float) width / designWidth / coefficient;
+        System.out.println("dpi: " + coefficient);
+        this.ratio = coefficient / ((designDpi * width) / designWidth);
         System.out.println("计算出的系数：" + ratio);
     }
 
@@ -102,8 +100,8 @@ public class ChangeDimensionTask {
             fop.write(contentInBytes);
             fop.flush();
             fop.close();
-            System.out.println("Done:      " + destFileFolder + File.separator + "dimens.xml");
-            System.out.println("------------------------------------------------------" + "\n\n");
+            System.out.println("Done: " + destFileFolder + File.separator + "dimens.xml");
+            System.out.println("------------------------------------------------------\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -114,17 +112,13 @@ public class ChangeDimensionTask {
         File file = new File(sourceFileName);
         BufferedReader reader = null;
         try {
-//	            System.out.println("以行为单位读取文件内容，一次读一整行：");
+            // 以行为单位读取文件内容，一次读一整行
             reader = new BufferedReader(new FileReader(file));
             String oneLine;
-//            int line = 1;
             // 一次读入一行，直到读入null为文件结束
             while ((oneLine = reader.readLine()) != null) {
-                // 显示行号
-//	                System.out.println("line " + line + ": " + oneLine);
-                stringBuilder.append(updateDimension((String) oneLine));
+                stringBuilder.append(updateDimension(oneLine));
                 stringBuilder.append("\n");
-//                line++;
             }
             reader.close();
         } catch (IOException e) {
@@ -141,7 +135,8 @@ public class ChangeDimensionTask {
     }
 
     private String updateDimension(String oneLine) {
-        if (oneLine.contains("Default screen margins")) {//说明是第一行备注 mdpi 160dpi 1136x640
+        if (oneLine.contains("Default screen margins")) {
+            //说明是第一行备注 mdpi 160dpi 1136x640
             return "    <!-- " + firstLineStatement + " " + height + "x" + width + " -->";
         }
         String newTempString = updateDimension(oneLine, "dp");
@@ -158,7 +153,7 @@ public class ChangeDimensionTask {
             int end = oneLine.indexOf("</");
             if (begin > 0 && end > 0 && end > begin) {
                 String dimensionString = oneLine.substring(begin + 2, end);
-                int dp = Integer.valueOf(dimensionString.substring(0, dimensionString.indexOf(keyword)));
+                double dp = Double.valueOf(dimensionString.substring(0, dimensionString.indexOf(keyword)));
                 BigDecimal newDimen = new BigDecimal(dp * ratio).setScale(2, BigDecimal.ROUND_HALF_UP);
                 return oneLine.replace(dimensionString, newDimen + keyword);
             }
